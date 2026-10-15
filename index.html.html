@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>משטרת הקסדות - בדיקת תנועה ובטיחות</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Rubik + Retro Arcade Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:ital,wght@0,300..900;1,300..900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      font-family: 'Rubik', sans-serif;
+      background-color: #05050f;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    .pixel-font {
+      font-family: 'Silkscreen', 'Rubik', monospace;
+    }
+    .arcade-font {
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    /* Chunky Arcade Shadow and Borders */
+    .arcade-card {
+      border: 4px solid #000;
+      box-shadow: 6px 6px 0px #000;
+      transition: all 0.15s ease-in-out;
+    }
+    .arcade-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0px #000;
+    }
+    .arcade-btn {
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0px #000;
+      transition: all 0.1s ease;
+    }
+    .arcade-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    /* CRT Monitor Scanlines Effect */
+    .scanlines {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.04),
+        rgba(0, 255, 0, 0.02),
+        rgba(0, 0, 255, 0.04)
+      );
+      background-size: 100% 4px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Officer Selection Hover */
+    .officer-select-card {
+      border: 4px solid #1e293b;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .officer-select-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-4px);
+    }
+    .officer-select-card.active {
+      border-color: #facc15;
+      background-color: rgba(30, 41, 59, 0.9);
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Top Navigation & Stats Bar -->
+  <header class="w-full bg-slate-900 border-b-4 border-black p-3 sm:p-4 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Title & Shift Level -->
+      <div class="flex items-center gap-3">
+        <div class="bg-yellow-400 border-2 border-black p-2 rounded text-black text-xl font-black">
+          🚨
+        </div>
+        <div>
+          <h1 class="pixel-font text-sm sm:text-base text-yellow-400 tracking-wider">משטרת הקסדות</h1>
+          <p id="shiftLevelLabel" class="text-xs text-slate-300 font-bold">שלב 1: משמרת בוקר</p>
+        </div>
+      </div>
+
+      <!-- Active Officer Button -->
+      <button onclick="openOfficerModal()" class="arcade-btn bg-slate-800 hover:bg-slate-700 text-cyan-300 px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold">
+        <span id="officerIconMini">👮‍♂️</span>
+        <span id="officerNameMini">סמ״ר ברק (קשוח)</span>
+        <span class="text-[10px] bg-cyan-950 border border-cyan-500/40 px-1.5 py-0.5 rounded text-cyan-200">החלף</span>
+      </button>
+
+      <!-- Stats: Lives, Cash, Ice Cream, Controls -->
+      <div class="flex items-center gap-2 sm:gap-4 flex-wrap">
+        
+        <!-- Lives / Hearts -->
+        <div class="bg-black/60 border-2 border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1">
+          <span class="text-xs text-slate-400 font-bold hidden sm:inline">פסילות:</span>
+          <div id="livesDisplay" class="flex gap-1 text-base tracking-tight">
+            <span>❤️</span><span>❤️</span><span>❤️</span>
+          </div>
+        </div>
+
+        <!-- Fines Collected -->
+        <div class="bg-amber-950/70 border-2 border-amber-500 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <span class="text-amber-400 font-bold text-xs">💰 קופה:</span>
+          <span id="fineCoinsLabel" class="arcade-font text-xs sm:text-sm text-amber-300">₪0</span>
+        </div>
+
+        <!-- Ice Cream Credits -->
+        <div class="bg-pink-950/70 border-2 border-pink-500 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <span class="text-pink-400 font-bold text-xs">🍦 גלידות:</span>
+          <span id="iceCreamLabel" class="arcade-font text-xs sm:text-sm text-pink-300">0</span>
+        </div>
+
+        <!-- Pause Button -->
+        <button id="pauseBtn" onclick="togglePause()" class="arcade-btn bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold">
+          ⏸️ השהה
+        </button>
+
+        <!-- Rulebook Button -->
+        <button onclick="openRulebook()" class="arcade-btn bg-cyan-600 hover:bg-cyan-500 text-black px-3 py-1.5 rounded-lg text-xs font-black">
+          📖 ספר חוקים
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl w-full mx-auto p-3 sm:p-4 flex-1 flex flex-col justify-center">
+
+    <!-- Inspection Screen Card -->
+    <div class="arcade-card bg-slate-900 rounded-2xl overflow-hidden relative border-4 border-black">
+      
+      <!-- Screen Top Bar -->
+      <div class="bg-slate-950 border-b-2 border-slate-800 px-4 py-2 flex items-center justify-between text-xs">
+        <span class="text-cyan-400 font-bold flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          עמדת ביקורת ובטיחות • בדיקה פעילה
+        </span>
+        <span id="subjectCounter" class="text-slate-400 font-mono text-[11px]">נבדק: 1 / 15</span>
+      </div>
+
+      <!-- Time Bar -->
+      <div class="w-full bg-slate-950 h-2.5 overflow-hidden">
+        <div id="timeProgressBar" class="h-full bg-cyan-400 transition-all duration-100 ease-linear" style="width: 100%;"></div>
+      </div>
+
+      <!-- The Visual Inspection Stage -->
+      <div class="relative w-full h-72 sm:h-80 bg-gradient-to-b from-[#0b0f19] via-[#0f172a] to-[#1e293b] flex items-center justify-center overflow-hidden">
+        
+        <!-- CRT Overlay -->
+        <div class="absolute inset-0 scanlines z-10"></div>
+
+        <!-- Street and Perspective Background -->
+        <div class="absolute bottom-0 w-full h-24 bg-slate-950 border-t-4 border-slate-800 flex items-center justify-around">
+          <div class="w-16 h-2 bg-yellow-400/80 rounded"></div>
+          <div class="w-16 h-2 bg-yellow-400/80 rounded"></div>
+          <div class="w-16 h-2 bg-yellow-400/80 rounded"></div>
+        </div>
+
+        <!-- Checkpoint Officer Booth (Visual presence of the chosen officer) -->
+        <div class="absolute right-4 sm:right-8 bottom-6 z-15 flex flex-col items-center">
+          <div id="boothOfficerSvg" class="w-20 h-20 filter drop-shadow-lg">
+            <!-- Dynamic Officer SVG injected by JS -->
+          </div>
+          <span id="boothOfficerTag" class="text-[10px] font-black bg-black/80 px-2 py-0.5 rounded border border-slate-700 text-yellow-300 mt-1">
+            סמ״ר ברק
+          </span>
+        </div>
+
+        <!-- Vehicle & Subject Container -->
+        <div id="subjectStage" class="relative z-20 flex flex-col items-center justify-center transition-all duration-300">
+          <!-- Injected dynamically via renderSubject() -->
+        </div>
+
+        <!-- Slow Time Freeze Effect FX -->
+        <div id="slowTimeFX" class="absolute inset-0 bg-cyan-500/10 backdrop-blur-[1px] border-4 border-cyan-400 hidden z-25 pointer-events-none flex items-center justify-center">
+          <span class="pixel-font text-cyan-300 bg-black/80 px-4 py-1 rounded-full text-xs animate-pulse">
+            ⏳ האטת זמן מופעלת!
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Action Controls Bar -->
+      <div class="bg-slate-950 border-t-4 border-black p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        
+        <!-- Slow Time Button (Buyable with Ice Cream) -->
+        <button id="slowTimeBtn" onclick="activateSlowMotion()" class="arcade-btn w-full sm:w-auto bg-purple-700 hover:bg-purple-600 disabled:opacity-40 disabled:pointer-events-none text-white px-4 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2">
+          <span>⏳ האטת זמן</span>
+          <span class="bg-black/40 px-2 py-0.5 rounded text-[10px] text-pink-300 font-mono">עולה 2 גלידות</span>
+        </button>
+
+        <!-- Decision Buttons: FINE (Left) and REWARD/LET-GO (Right) -->
+        <div class="flex w-full sm:w-auto gap-3 flex-1 justify-end">
+          
+          <!-- FINE BUTTON -->
+          <button onclick="handleDecision('FINE')" class="arcade-btn flex-1 sm:flex-initial sm:min-w-[170px] bg-rose-600 hover:bg-rose-500 text-white font-black py-3 px-5 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base">
+            <span>🚨 קנס!</span>
+            <span id="fineButtonAmount" class="bg-black/30 text-rose-200 text-xs px-2 py-0.5 rounded font-mono">₪500</span>
+          </button>
+
+          <!-- REWARD / CLEAR BUTTON -->
+          <button onclick="handleDecision('PASS')" class="arcade-btn flex-1 sm:flex-initial sm:min-w-[170px] bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 px-5 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base">
+            <span>🍦 תקין / פרס</span>
+            <span class="bg-black/30 text-emerald-200 text-xs px-2 py-0.5 rounded font-mono">שחרר לדרך</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  
+  <!-- MODAL: Character Select -->
+  <div id="officerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="arcade-card bg-slate-900 border-4 border-black max-w-2xl w-full rounded-2xl p-6 text-center">
+      <h2 class="pixel-font text-xl sm:text-2xl text-yellow-400 mb-2">בחר את השוטר שלך למשמרת</h2>
+      <p class="text-xs sm:text-sm text-slate-300 mb-6">לכל שוטר סגנון אכיפה שונה, יתרונות ומערכת תגמולים ייחודית:</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-right mb-6">
+        
+        <!-- Card: Tough Barak -->
+        <div id="cardTough" onclick="selectOfficer('TOUGH')" class="officer-select-card bg-slate-950 p-4 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-24 h-24 mx-auto mb-3">
+              <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow">
+                <!-- Tough Officer Barak SVG -->
+                <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+                <!-- Face -->
+                <path d="M30 35 L70 35 L68 75 L50 85 L32 75 Z" fill="#fbcfe8"/>
+                <!-- Square Jaw -->
+                <path d="M32 60 L32 75 L50 85 L68 75 L68 60" fill="none" stroke="#be185d" stroke-width="1.5"/>
+                <!-- Aviator Sunglasses -->
+                <polygon points="34,42 48,42 45,55 35,53" fill="#111827" stroke="#fbbf24" stroke-width="1.5"/>
+                <polygon points="52,42 66,42 65,53 55,55" fill="#111827" stroke="#fbbf24" stroke-width="1.5"/>
+                <line x1="48" y1="45" x2="52" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <line x1="36" y1="45" x2="44" y2="52" stroke="#60a5fa" stroke-width="1.5"/>
+                <line x1="54" y1="45" x2="62" y2="52" stroke="#60a5fa" stroke-width="1.5"/>
+                <!-- Stern Mouth -->
+                <line x1="42" y1="72" x2="58" y2="72" stroke="#881337" stroke-width="3" stroke-linecap="round"/>
+                <!-- Police Cap -->
+                <path d="M25 35 Q50 18 75 35 Z" fill="#1e3a8a"/>
+                <path d="M22 35 Q50 30 78 35 L80 39 Q50 35 20 39 Z" fill="#0f172a"/>
+                <circle cx="50" cy="27" r="4" fill="#facc15"/>
+              </svg>
+            </div>
+            <h3 class="pixel-font text-sm text-yellow-300 font-bold text-center mb-1">סמ״ר ברק [הקשוח]</h3>
+            <p class="text-xs text-slate-300 leading-relaxed text-center mb-3">משקפי טייסים, לסת חזקה, קפדן ואוכף חוק ללא פשרות.</p>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-[11px] space-y-1">
+            <div class="flex justify-between text-emerald-400 font-bold">
+              <span>💰 קנסות כבדים:</span>
+              <span class="font-mono">₪500</span>
+            </div>
+            <div class="flex justify-between text-pink-400 font-bold">
+              <span>🍦 חלוקת גלידות:</span>
+              <span>פעם כן פעם לא (לסירוגין)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Friendly Yoav -->
+        <div id="cardFriendly" onclick="selectOfficer('FRIENDLY')" class="officer-select-card bg-slate-950 p-4 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-24 h-24 mx-auto mb-3">
+              <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow">
+                <!-- Friendly Officer Yoav SVG -->
+                <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#f472b6" stroke-width="2"/>
+                <!-- Face -->
+                <circle cx="50" cy="55" r="28" fill="#fed7aa"/>
+                <!-- Cheerful Eyes -->
+                <circle cx="41" cy="50" r="3.5" fill="#1e293b"/>
+                <circle cx="59" cy="50" r="3.5" fill="#1e293b"/>
+                <circle cx="42.5" cy="48.5" r="1" fill="#fff"/>
+                <circle cx="60.5" cy="48.5" r="1" fill="#fff"/>
+                <!-- Dimples & Smile -->
+                <path d="M38 62 Q50 74 62 62" fill="none" stroke="#9a3412" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="34" cy="61" r="2" fill="#ea580c"/>
+                <circle cx="66" cy="61" r="2" fill="#ea580c"/>
+                <!-- Police Cap -->
+                <path d="M25 38 Q50 20 75 38 Z" fill="#1e3a8a"/>
+                <path d="M22 38 Q50 34 78 38 L80 41 Q50 37 20 41 Z" fill="#0f172a"/>
+                <circle cx="50" cy="30" r="4" fill="#facc15"/>
+                <!-- Ice cream in hand -->
+                <g transform="translate(68, 48) scale(0.65)">
+                  <polygon points="10,25 25,55 40,25" fill="#d97706"/>
+                  <circle cx="25" cy="20" r="12" fill="#f472b6"/>
+                  <circle cx="25" cy="12" r="8" fill="#38bdf8"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="pixel-font text-sm text-pink-300 font-bold text-center mb-1">רס״ל יואב [החייכני]</h3>
+            <p class="text-xs text-slate-300 leading-relaxed text-center mb-3">חיוך רחב, גומות חן, אוהב לחלק גלידות ולצ'פר אזרחים זהירים.</p>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-[11px] space-y-1">
+            <div class="flex justify-between text-pink-400 font-bold">
+              <span>🍦 חלוקת גלידות:</span>
+              <span>מובטח לכל אזרח זהיר (+1)</span>
+            </div>
+            <div class="flex justify-between text-amber-300 font-bold">
+              <span>💰 קנס רגיל:</span>
+              <span class="font-mono">₪250</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <button onclick="confirmOfficerSelection()" class="arcade-btn w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-3 rounded-xl text-sm">
+        אישור והתחלת המשמרת 🚔
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Pause Screen -->
+  <div id="pauseOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="arcade-card bg-slate-900 border-4 border-yellow-400 max-w-sm w-full rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-3">⏸️</div>
+      <h3 class="pixel-font text-lg text-yellow-300 mb-2">המשחק מושהה</h3>
+      <p class="text-xs text-slate-300 mb-6">זמן אידיאלי להתבונן בדמות, לשוחח, לחשוב על חוקי הבטיחות ולהחליט יחד.</p>
+      <button onclick="togglePause()" class="arcade-btn w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-2.5 rounded-xl text-sm">
+        המשך משחק ▶️
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Strike Feedback & Clinical Discussion Pause -->
+  <div id="feedbackModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="arcade-card bg-slate-900 border-4 border-black max-w-md w-full rounded-2xl p-6 text-center">
+      <div id="feedbackIcon" class="text-5xl mb-3">❌</div>
+      <h3 id="feedbackTitle" class="pixel-font text-base sm:text-lg font-black mb-2 text-rose-400">פסילה!</h3>
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-5 text-right">
+        <p id="feedbackDesc" class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium"></p>
+      </div>
+      <button id="resumeAfterStrikeBtn" onclick="resumeAfterStrike()" class="arcade-btn w-full bg-cyan-400 hover:bg-cyan-300 text-black font-black py-3 rounded-xl text-sm">
+        הבנתי, המשך בבדיקה ▶️
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Rulebook ("אם... אז...") -->
+  <div id="rulebookModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="arcade-card bg-slate-900 border-4 border-cyan-400 max-w-lg w-full rounded-2xl p-6 text-right">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+        <h3 class="pixel-font text-base text-cyan-300 flex items-center gap-2">
+          <span>📖</span> ספר חוקי התנועה והאכיפה
+        </h3>
+        <button onclick="closeRulebook()" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs leading-relaxed text-slate-200 mb-6">
+        <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-yellow-400">
+          <strong class="text-yellow-300 block mb-1">חוק 1: חבישת קסדה בדו-גלגלי</strong>
+          <strong>אם</strong> רוכב אופניים או קורקינט אינו חובש קסדה תקינה, <strong>אז</strong> חובה לתת קנס מידי להגנה על חייו.
+        </div>
+        <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-rose-500">
+          <strong class="text-rose-400 block mb-1">חוק 2: גלגלים ותקינות כלי הרכב</strong>
+          <strong>אם</strong> יש תקר בגלגל (פנצ'ר מעוך) בכל סוג רכב, <strong>אז</strong> הרכב מסוכן לנסיעה וחובה לקנוס אותו.
+        </div>
+        <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-purple-400">
+          <strong class="text-purple-300 block mb-1">חוק 3: מטענים חריגים על גג מכונית</strong>
+          <strong>אם</strong> על גג המכונית קשור חפץ חשוד או לא הגיוני, <strong>אז</strong> הנהג ביצע עבירת מטען ויש לקנוס אותו.
+        </div>
+        <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-emerald-400">
+          <strong class="text-emerald-300 block mb-1">חוק 4: אזרח זהיר ושומר חוק</strong>
+          <strong>אם</strong> הכל תקין לחלוטין (יש קסדה, אין תקר ואין חפץ על הגג), <strong>אז</strong> משחררים בבטחה ומחלקים גלידה!
+        </div>
+      </div>
+
+      <button onclick="closeRulebook()" class="arcade-btn w-full bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 rounded-xl text-sm">
+        חזרה לעמדת הבדיקה
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Game Over Screen -->
+  <div id="gameOverModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="arcade-card bg-slate-900 border-4 border-rose-500 max-w-md w-full rounded-2xl p-6 text-center">
+      <div class="text-5xl mb-2">💥</div>
+      <h2 class="arcade-font text-rose-500 text-xl mb-1">GAME OVER</h2>
+      <p class="pixel-font text-xs text-yellow-300 mb-4">404: LIVES NOT FOUND</p>
+
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-right text-xs space-y-2 mb-6">
+        <div class="flex justify-between text-slate-300">
+          <span>סה״כ קנסות שנאספו לקופה:</span>
+          <span id="finalFines" class="font-bold text-amber-300 font-mono">₪0</span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span>גלידות שחולקו לאזרחים:</span>
+          <span id="finalIceCream" class="font-bold text-pink-300 font-mono">0</span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span>רכבים שנבדקו בהצלחה:</span>
+          <span id="finalScore" class="font-bold text-cyan-300 font-mono">0</span>
+        </div>
+      </div>
+
+      <button onclick="restartGame()" class="arcade-btn w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-3 rounded-xl text-sm">
+        משמרת חדשה 🔄
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* Audio Synthesizer via Web Audio API (No external sound files required) */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(freq, type = 'sine', duration = 0.15, gain = 0.1) {
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(gain, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // Audio error handling
+      }
+    }
+
+    function soundReward() {
+      playTone(523, 'triangle', 0.1, 0.15); // C5
+      setTimeout(() => playTone(659, 'triangle', 0.1, 0.15), 80); // E5
+      setTimeout(() => playTone(784, 'triangle', 0.2, 0.15), 160); // G5
+    }
+
+    function soundFine() {
+      playTone(400, 'square', 0.1, 0.2);
+      setTimeout(() => playTone(300, 'square', 0.15, 0.2), 90);
+    }
+
+    function soundStrike() {
+      playTone(180, 'sawtooth', 0.3, 0.3);
+      setTimeout(() => playTone(120, 'sawtooth', 0.4, 0.35), 150);
+    }
+
+    function soundSlowMotion() {
+      playTone(880, 'sine', 0.4, 0.1);
+      setTimeout(() => playTone(440, 'sine', 0.5, 0.1), 100);
+    }
+
+    /* Game State */
+    const state = {
+      selectedOfficer: 'TOUGH', // 'TOUGH' (Barak) or 'FRIENDLY' (Yoav)
+      toughGivesIceCreamNext: false, // Strict alternation for Tough officer: פעם כן פעם לא
+      lives: 3,
+      finesCollected: 0,
+      iceCreamCredits: 0,
+      checkedCount: 0,
+      currentShift: 1, // 1 to 3
+      isPaused: false,
+      waitingForManualResume: false,
+      isSlowMotion: false,
+      slowMotionTimeout: null,
+      turnTimer: null,
+      timeRemaining: 10,
+      maxTurnTime: 10,
+      currentSubject: null,
+      recentTypes: [] // Tracks vehicle types to prevent long streaks
+    };
+
+    /* Officer Profiles Data */
+    const OFFICERS = {
+      TOUGH: {
+        name: 'סמ״ר ברק (הקשוח)',
+        shortName: 'סמ״ר ברק',
+        fineAmount: 500,
+        icon: '👮‍♂️'
+      },
+      FRIENDLY: {
+        name: 'רס״ל יואב (החייכני)',
+        shortName: 'רס״ל יואב',
+        fineAmount: 250,
+        icon: '👮'
+      }
+    };
+
+    const SUSPICIOUS_ROOF_ITEMS = ['תנין מתנפח 🐊', 'ספה ישנה 🛋️', 'סיר מרק רותח 🍲', 'עץ בננות 🍌', 'מכונת כביסה 🌀'];
+
+    function generateSubject() {
+      // Determine vehicle type with cognitive interleaving (never 3 cars in a row)
+      const carStreak = state.recentTypes.slice(-2).filter(t => t === 'CAR').length;
+      let type = 'BIKE';
+
+      if (state.currentShift === 1) {
+        // Shift 1: Only 2-wheelers (Bikes & Scooters)
+        type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
+      } else {
+        // Shift 2 and 3: Mix of cars and 2-wheelers
+        if (carStreak >= 2) {
+          type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER'; // Force 2-wheeler
+        } else {
+          const rand = Math.random();
+          if (rand < 0.40) type = 'CAR';
+          else if (rand < 0.70) type = 'BIKE';
+          else type = 'SCOOTER';
+        }
+      }
+
+      state.recentTypes.push(type);
+      if (state.recentTypes.length > 6) state.recentTypes.shift();
+
+      const isTwoWheeler = (type === 'BIKE' || type === 'SCOOTER');
+
+      // Violations logic
+      let hasHelmet = true;
+      let hasFlatTire = false;
+      let roofItem = null;
+
+      if (isTwoWheeler) {
+        // In 2-wheelers: 45% chance helmet is missing
+        hasHelmet = Math.random() >= 0.45;
+        // In shift 2+: 20% flat tire
+        if (state.currentShift >= 2) {
+          hasFlatTire = Math.random() < 0.20;
+        }
+      } else {
+        // Cars: No helmet needed, but roof cargo or flat tire
+        if (Math.random() < 0.50) {
+          roofItem = SUSPICIOUS_ROOF_ITEMS[Math.floor(Math.random() * SUSPICIOUS_ROOF_ITEMS.length)];
+        }
+        if (Math.random() < 0.25) {
+          hasFlatTire = true;
+        }
+      }
+
+      // Check if illegal
+      const isIllegal = (!hasHelmet && isTwoWheeler) || hasFlatTire || (roofItem !== null);
+      
+      let violationReason = '';
+      if (!hasHelmet && isTwoWheeler) violationReason = 'הרוכב לא חבש קסדה תקינה!';
+      else if (hasFlatTire) violationReason = 'לכלי הרכב יש צמיג מפונצ\'ר ומעוך המסכן את הנסיעה!';
+      else if (roofItem) violationReason = `על גג הרכב קשור מטען מסוכן ולא מורשה: ${roofItem}!`;
+
+      return {
+        type,
+        isTwoWheeler,
+        hasHelmet,
+        hasFlatTire,
+        roofItem,
+        isIllegal,
+        violationReason
+      };
+    }
+
+    function renderSubject() {
+      const container = document.getElementById('subjectStage');
+      const sub = state.currentSubject;
+      if (!sub) return;
+
+      let html = '';
+
+      if (sub.type === 'BIKE' || sub.type === 'SCOOTER') {
+        const tireRx = sub.hasFlatTire ? '12' : '22';
+        const tireRy = sub.hasFlatTire ? '22' : '22';
+
+        html = `
+          <svg viewBox="0 0 240 200" class="w-64 sm:w-72 h-52 sm:h-60 filter drop-shadow-md">
+            <!-- Rider Body -->
+            <ellipse cx="120" cy="95" rx="14" ry="24" fill="#3b82f6" stroke="#000" stroke-width="3"/>
+            
+            <!-- Rider Head -->
+            <circle cx="120" cy="50" r="16" fill="#fcd34d" stroke="#000" stroke-width="3"/>
+            <!-- Friendly / Rider Face -->
+            <circle cx="115" cy="48" r="2.5" fill="#000"/>
+            <path d="M112 55 Q117 60 122 55" fill="none" stroke="#000" stroke-width="2"/>
+
+            <!-- HELMET OR NO HELMET (Pure visual, no text badges) -->
+            ${sub.hasHelmet ? `
+              <!-- Safe Protective Helmet with Strap -->
+              <path d="M102 46 Q120 22 138 46 Z" fill="#ec4899" stroke="#000" stroke-width="3.5"/>
+              <path d="M104 46 L136 46" stroke="#facc15" stroke-width="3"/>
+              <!-- Chinstrap -->
+              <path d="M108 50 Q118 67 128 50" fill="none" stroke="#000" stroke-width="2.5"/>
+            ` : `
+              <!-- Hair Only - No Helmet -->
+              <path d="M104 46 Q120 32 136 46" fill="#78350f" stroke="#000" stroke-width="2.5"/>
+            `}
+
+            <!-- Arms & Handlebars -->
+            <path d="M118 85 L145 92" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+
+            ${sub.type === 'BIKE' ? `
+              <!-- BICYCLE FRAME -->
+              <polygon points="90,145 130,145 155,100 115,100" fill="none" stroke="#06b6d4" stroke-width="6" stroke-linejoin="round"/>
+              <line x1="90" y1="145" x2="115" y2="100" stroke="#06b6d4" stroke-width="6"/>
+              <line x1="130" y1="145" x2="155" y2="92" stroke="#06b6d4" stroke-width="6"/>
+              
+              <!-- Wheels (Deflated if flat tire) -->
+              <!-- Rear Wheel -->
+              <ellipse cx="65" cy="145" rx="22" ry="${tireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
+              <circle cx="65" cy="145" r="7" fill="#cbd5e1"/>
+              <!-- Front Wheel (May be flat) -->
+              <ellipse cx="175" cy="${sub.hasFlatTire ? '155' : '145'}" rx="${tireRx}" ry="${tireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
+              <circle cx="175" cy="${sub.hasFlatTire ? '155' : '145'}" r="7" fill="#cbd5e1"/>
+            ` : `
+              <!-- ELECTRIC SCOOTER FRAME -->
+              <line x1="85" y1="150" x2="160" y2="150" stroke="#10b981" stroke-width="8" stroke-linecap="round"/>
+              <line x1="155" y1="150" x2="150" y2="92" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+              
+              <!-- Wheels -->
+              <ellipse cx="75" cy="152" rx="14" ry="14" fill="#1e293b" stroke="#000" stroke-width="3.5"/>
+              <ellipse cx="165" cy="${sub.hasFlatTire ? '158' : '152'}" rx="${sub.hasFlatTire ? '8' : '14'}" ry="14" fill="#1e293b" stroke="#000" stroke-width="3.5"/>
+            `}
+          </svg>
+        `;
+      } else {
+        // CAR (With possible suspicious roof cargo or flat tire)
+        const rearTireRy = sub.hasFlatTire ? '10' : '18';
+
+        html = `
+          <svg viewBox="0 0 280 180" class="w-72 sm:w-80 h-52 sm:h-60 filter drop-shadow-md">
+            <!-- Roof Item if Suspicious -->
+            ${sub.roofItem ? `
+              <g transform="translate(100, 15)">
+                <!-- Cargo straps -->
+                <line x1="15" y1="35" x2="15" y2="55" stroke="#f59e0b" stroke-width="3"/>
+                <line x1="65" y1="35" x2="65" y2="55" stroke="#f59e0b" stroke-width="3"/>
+                <!-- Item Emoji / Visual -->
+                <text x="40" y="32" font-size="34" text-anchor="middle">${sub.roofItem.split(' ')[1] || '📦'}</text>
+              </g>
+            ` : ''}
+
+            <!-- Car Cabin -->
+            <path d="M75 75 L110 45 L180 45 L215 75 Z" fill="#38bdf8" stroke="#000" stroke-width="4"/>
+            <!-- Windows -->
+            <polygon points="115,50 142,50 142,72 85,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
+            <polygon points="148,50 175,50 205,72 148,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
+
+            <!-- Car Chassis -->
+            <rect x="40" y="75" width="205" height="42" rx="12" fill="#f43f5e" stroke="#000" stroke-width="4"/>
+            <!-- Headlights -->
+            <circle cx="238" cy="88" r="6" fill="#fef08a" stroke="#000" stroke-width="2"/>
+            <rect x="42" y="84" width="8" height="12" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
+
+            <!-- Wheels -->
+            <!-- Front Wheel -->
+            <ellipse cx="195" cy="118" rx="18" ry="18" fill="#1e293b" stroke="#000" stroke-width="4"/>
+            <circle cx="195" cy="118" r="6" fill="#cbd5e1"/>
+            <!-- Rear Wheel (May be flat) -->
+            <ellipse cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" rx="18" ry="${rearTireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
+            <circle cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" r="6" fill="#cbd5e1"/>
+          </svg>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderBoothOfficer() {
+      const container = document.getElementById('boothOfficerSvg');
+      const tag = document.getElementById('boothOfficerTag');
+      const isTough = (state.selectedOfficer === 'TOUGH');
+
+      tag.textContent = isTough ? 'סמ״ר ברק' : 'רס״ל יואב';
+
+      if (isTough) {
+        container.innerHTML = `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <path d="M30 35 L70 35 L68 75 L50 85 L32 75 Z" fill="#fbcfe8"/>
+            <polygon points="34,42 48,42 45,55 35,53" fill="#111827" stroke="#fbbf24" stroke-width="1.5"/>
+            <polygon points="52,42 66,42 65,53 55,55" fill="#111827" stroke="#fbbf24" stroke-width="1.5"/>
+            <line x1="48" y1="45" x2="52" y2="45" stroke="#fbbf24" stroke-width="2"/>
+            <line x1="42" y1="72" x2="58" y2="72" stroke="#881337" stroke-width="3" stroke-linecap="round"/>
+            <path d="M25 35 Q50 18 75 35 Z" fill="#1e3a8a"/>
+            <circle cx="50" cy="27" r="4" fill="#facc15"/>
+          </svg>
+        `;
+      } else {
+        container.innerHTML = `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="55" r="28" fill="#fed7aa"/>
+            <circle cx="41" cy="50" r="3.5" fill="#1e293b"/>
+            <circle cx="59" cy="50" r="3.5" fill="#1e293b"/>
+            <path d="M38 62 Q50 74 62 62" fill="none" stroke="#9a3412" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="34" cy="61" r="2" fill="#ea580c"/>
+            <circle cx="66" cy="61" r="2" fill="#ea580c"/>
+            <path d="M25 38 Q50 20 75 38 Z" fill="#1e3a8a"/>
+            <circle cx="50" cy="30" r="4" fill="#facc15"/>
+          </svg>
+        `;
+      }
+    }
+
+    function updateHUD() {
+      // Lives display
+      let heartsHtml = '';
+      for (let i = 0; i < 3; i++) {
+        heartsHtml += i < state.lives ? '<span>❤️</span>' : '<span class="opacity-30">🖤</span>';
+      }
+      document.getElementById('livesDisplay').innerHTML = heartsHtml;
+
+      // Fines & Ice Cream
+      document.getElementById('fineCoinsLabel').textContent = `₪${state.finesCollected}`;
+      document.getElementById('iceCreamLabel').textContent = state.iceCreamCredits;
+
+      // Officer Fine on button
+      const curOfficer = OFFICERS[state.selectedOfficer];
+      document.getElementById('fineButtonAmount').textContent = `₪${curOfficer.fineAmount}`;
+
+      // Officer Mini Badge
+      document.getElementById('officerIconMini').textContent = curOfficer.icon;
+      document.getElementById('officerNameMini').textContent = curOfficer.name;
+
+      // Shift tag
+      const shiftNames = ['שלב 1: משמרת בוקר', 'שלב 2: משמרת צהריים', 'שלב 3: משמרת לילה עמוסה'];
+      document.getElementById('shiftLevelLabel').textContent = shiftNames[state.currentShift - 1] || 'משמרת מיוחדת';
+
+      // Counter
+      document.getElementById('subjectCounter').textContent = `נבדק: ${state.checkedCount + 1} / 15`;
+
+      // Slow time button enable/disable
+      const slowBtn = document.getElementById('slowTimeBtn');
+      if (slowBtn) {
+        slowBtn.disabled = (state.iceCreamCredits < 2 || state.isSlowMotion);
+      }
+    }
+
+    function startTurn() {
+      if (state.lives <= 0) return;
+
+      clearInterval(state.turnTimer);
+      state.currentSubject = generateSubject();
+      renderSubject();
+
+      state.maxTurnTime = Math.max(6, 11 - state.currentShift);
+      state.timeRemaining = state.maxTurnTime;
+
+      updateTimeBar();
+      state.turnTimer = setInterval(handleTurnTick, 100);
+    }
+
+    function handleTurnTick() {
+      if (state.isPaused || state.waitingForManualResume) return;
+
+      const delta = state.isSlowMotion ? 0.05 : 0.1;
+      state.timeRemaining -= delta;
+
+      updateTimeBar();
+
+      if (state.timeRemaining <= 0) {
+        clearInterval(state.turnTimer);
+        // Time expired = Strike!
+        handleTimeOutStrike();
+      }
+    }
+
+    function updateTimeBar() {
+      const pct = Math.max(0, (state.timeRemaining / state.maxTurnTime) * 100);
+      const bar = document.getElementById('timeProgressBar');
+      bar.style.width = `${pct}%`;
+
+      if (pct > 50) bar.className = 'h-full bg-cyan-400 transition-all duration-100 ease-linear';
+      else if (pct > 25) bar.className = 'h-full bg-amber-400 transition-all duration-100 ease-linear';
+      else bar.className = 'h-full bg-rose-500 transition-all duration-100 ease-linear';
+    }
+
+    function handleDecision(choice) {
+      if (state.isPaused || state.waitingForManualResume || state.lives <= 0) return;
+      clearInterval(state.turnTimer);
+
+      const sub = state.currentSubject;
+      const isIllegal = sub.isIllegal;
+      const officer = OFFICERS[state.selectedOfficer];
+
+      // Was player correct?
+      const isCorrect = (choice === 'FINE' && isIllegal) || (choice === 'PASS' && !isIllegal);
+
+      if (isCorrect) {
+        // SUCCESS
+        state.checkedCount++;
+
+        if (choice === 'FINE') {
+          // Fine registered
+          soundFine();
+          state.finesCollected += officer.fineAmount;
+        } else {
+          // Passenger cleared safely
+          soundReward();
+          if (state.selectedOfficer === 'FRIENDLY') {
+            // Friendly officer always gives ice cream
+            state.iceCreamCredits += 1;
+          } else {
+            // Tough officer gives ice cream alternately (פעם כן פעם לא)
+            if (state.toughGivesIceCreamNext) {
+              state.iceCreamCredits += 1;
+            }
+            state.toughGivesIceCreamNext = !state.toughGivesIceCreamNext;
+          }
+        }
+
+        // Shift progression
+        if (state.checkedCount % 5 === 0 && state.currentShift < 3) {
+          state.currentShift++;
+        }
+
+        updateHUD();
+        setTimeout(startTurn, 300);
+
+      } else {
+        // ERROR -> FULL STOP (Manual Resume required)
+        soundStrike();
+        state.lives--;
+        updateHUD();
+
+        let explanation = '';
+        if (choice === 'FINE' && !isIllegal) {
+          explanation = 'האזרח נסע כחוק לפי כל הכללים! הייתה לו קסדה, גלגלים תקינים וללא מטען חריג. הקנס לא היה מוצדק.';
+        } else {
+          explanation = sub.violationReason || 'הרכב ביצע עבירת בטיחות ולא היה תקין!';
+        }
+
+        if (state.lives <= 0) {
+          triggerGameOver();
+        } else {
+          showStrikeModal('טעות בביקורת!', explanation);
+        }
+      }
+    }
+
+    function handleTimeOutStrike() {
+      soundStrike();
+      state.lives--;
+      updateHUD();
+
+      const sub = state.currentSubject;
+      let exp = 'הזמן תם והרכב עבר ללא בדיקה! ';
+      if (sub.isIllegal) exp += `שימו לב: ${sub.violationReason}`;
+      else exp += 'הרכב דווקא היה תקין, אך חובה לבדוק בזמן.';
+
+      if (state.lives <= 0) {
+        triggerGameOver();
+      } else {
+        showStrikeModal('פקיעת זמן!', exp);
+      }
+    }
+
+    function showStrikeModal(title, desc) {
+      state.waitingForManualResume = true;
+      document.getElementById('feedbackTitle').textContent = title;
+      document.getElementById('feedbackDesc').textContent = desc;
+      document.getElementById('feedbackModal').classList.remove('hidden');
+    }
+
+    function resumeAfterStrike() {
+      document.getElementById('feedbackModal').classList.add('hidden');
+      state.waitingForManualResume = false;
+      startTurn();
+    }
+
+    function triggerGameOver() {
+      clearInterval(state.turnTimer);
+      document.getElementById('finalFines').textContent = `₪${state.finesCollected}`;
+      document.getElementById('finalIceCream').textContent = state.iceCreamCredits;
+      document.getElementById('finalScore').textContent = state.checkedCount;
+      document.getElementById('gameOverModal').classList.remove('hidden');
+    }
+
+    function restartGame() {
+      document.getElementById('gameOverModal').classList.add('hidden');
+      document.getElementById('feedbackModal').classList.add('hidden');
+      state.lives = 3;
+      state.finesCollected = 0;
+      state.iceCreamCredits = 0;
+      state.checkedCount = 0;
+      state.currentShift = 1;
+      state.isPaused = false;
+      state.waitingForManualResume = false;
+      state.toughGivesIceCreamNext = false;
+      updateHUD();
+      renderBoothOfficer();
+      startTurn();
+    }
+
+    function activateSlowMotion() {
+      if (state.iceCreamCredits < 2 || state.isSlowMotion) return;
+
+      state.iceCreamCredits -= 2;
+      state.isSlowMotion = true;
+      soundSlowMotion();
+      updateHUD();
+
+      document.getElementById('slowTimeFX').classList.remove('hidden');
+
+      clearTimeout(state.slowMotionTimeout);
+      state.slowMotionTimeout = setTimeout(() => {
+        state.isSlowMotion = false;
+        document.getElementById('slowTimeFX').classList.add('hidden');
+        updateHUD();
+      }, 5000);
+    }
+
+    function togglePause() {
+      if (state.lives <= 0 || state.waitingForManualResume) return;
+
+      state.isPaused = !state.isPaused;
+      const overlay = document.getElementById('pauseOverlay');
+      const btn = document.getElementById('pauseBtn');
+
+      if (state.isPaused) {
+        overlay.classList.remove('hidden');
+        btn.textContent = '▶️ המשך';
+      } else {
+        overlay.classList.add('hidden');
+        btn.textContent = '⏸️ השהה';
+      }
+    }
+
+    function openRulebook() {
+      state.isPaused = true;
+      document.getElementById('rulebookModal').classList.remove('hidden');
+    }
+
+    function closeRulebook() {
+      document.getElementById('rulebookModal').classList.add('hidden');
+      state.isPaused = false;
+    }
+
+    function openOfficerModal() {
+      state.isPaused = true;
+      document.getElementById('cardTough').classList.toggle('active', state.selectedOfficer === 'TOUGH');
+      document.getElementById('cardFriendly').classList.toggle('active', state.selectedOfficer === 'FRIENDLY');
+      document.getElementById('officerModal').classList.remove('hidden');
+    }
+
+    function selectOfficer(type) {
+      state.selectedOfficer = type;
+      document.getElementById('cardTough').classList.toggle('active', type === 'TOUGH');
+      document.getElementById('cardFriendly').classList.toggle('active', type === 'FRIENDLY');
+    }
+
+    function confirmOfficerSelection() {
+      document.getElementById('officerModal').classList.add('hidden');
+      state.isPaused = false;
+      renderBoothOfficer();
+      updateHUD();
+    }
+
+    /* Keyboard shortcuts */
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+        togglePause();
+      } else if ((e.key === 'Enter' || e.key === ' ') && state.waitingForManualResume) {
+        resumeAfterStrike();
+      }
+    });
+
+    /* Initialize Game on Load */
+    window.onload = function() {
+      selectOfficer('TOUGH');
+      renderBoothOfficer();
+      updateHUD();
+      startTurn();
+    };
+  </script>
+</body>
+</html>
