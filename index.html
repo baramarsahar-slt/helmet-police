@@ -167,7 +167,7 @@
       <div class="relative w-full h-72 sm:h-80 bg-gradient-to-b from-[#0b0f19] via-[#0f172a] to-[#1e293b] flex items-center justify-center overflow-hidden">
         
         <!-- CRT Overlay -->
-        <div class="absolute inset-0 scanlines z-10"></div>
+        <div class="absolute inset-0 scanlines z-10 pointer-events-none"></div>
 
         <!-- Street and Perspective Background -->
         <div class="absolute bottom-0 w-full h-24 bg-slate-950 border-t-4 border-slate-800 flex items-center justify-around">
@@ -176,11 +176,9 @@
           <div class="w-16 h-2 bg-yellow-400/80 rounded"></div>
         </div>
 
-        <!-- Checkpoint Officer Booth (Visual presence of the chosen officer) -->
+        <!-- Checkpoint Officer Booth -->
         <div class="absolute right-4 sm:right-8 bottom-6 z-15 flex flex-col items-center">
-          <div id="boothOfficerSvg" class="w-20 h-20 filter drop-shadow-lg">
-            <!-- Dynamic Officer SVG injected by JS -->
-          </div>
+          <div id="boothOfficerSvg" class="w-20 h-20 filter drop-shadow-lg"></div>
           <span id="boothOfficerTag" class="text-[10px] font-black bg-black/80 px-2 py-0.5 rounded border border-slate-700 text-yellow-300 mt-1">
             סמ״ר ברק
           </span>
@@ -203,13 +201,13 @@
       <!-- Action Controls Bar -->
       <div class="bg-slate-950 border-t-4 border-black p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
         
-        <!-- Slow Time Button (Buyable with Ice Cream) -->
+        <!-- Slow Time Button -->
         <button id="slowTimeBtn" onclick="activateSlowMotion()" class="arcade-btn w-full sm:w-auto bg-purple-700 hover:bg-purple-600 disabled:opacity-40 disabled:pointer-events-none text-white px-4 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2">
           <span>⏳ האטת זמן</span>
           <span class="bg-black/40 px-2 py-0.5 rounded text-[10px] text-pink-300 font-mono">עולה 2 גלידות</span>
         </button>
 
-        <!-- Decision Buttons: FINE (Left) and REWARD/LET-GO (Right) -->
+        <!-- Decision Buttons -->
         <div class="flex w-full sm:w-auto gap-3 flex-1 justify-end">
           
           <!-- FINE BUTTON -->
@@ -232,7 +230,6 @@
 
   </main>
 
-  
   <!-- MODAL: Character Select -->
   <div id="officerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="arcade-card bg-slate-900 border-4 border-black max-w-2xl w-full rounded-2xl p-6 text-center">
@@ -246,21 +243,15 @@
           <div>
             <div class="w-24 h-24 mx-auto mb-3">
               <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow">
-                <!-- Tough Officer Barak SVG -->
                 <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
-                <!-- Face -->
                 <path d="M30 35 L70 35 L68 75 L50 85 L32 75 Z" fill="#fbcfe8"/>
-                <!-- Square Jaw -->
                 <path d="M32 60 L32 75 L50 85 L68 75 L68 60" fill="none" stroke="#be185d" stroke-width="1.5"/>
-                <!-- Aviator Sunglasses -->
                 <polygon points="34,42 48,42 45,55 35,53" fill="#111827" stroke="#fbbf24" stroke-width="1.5"/>
                 <polygon points="52,42 66,42 65,53 55,55" fill="#111827" stroke="#fbbf24" stroke-width="1.5"/>
                 <line x1="48" y1="45" x2="52" y2="45" stroke="#fbbf24" stroke-width="2"/>
                 <line x1="36" y1="45" x2="44" y2="52" stroke="#60a5fa" stroke-width="1.5"/>
                 <line x1="54" y1="45" x2="62" y2="52" stroke="#60a5fa" stroke-width="1.5"/>
-                <!-- Stern Mouth -->
                 <line x1="42" y1="72" x2="58" y2="72" stroke="#881337" stroke-width="3" stroke-linecap="round"/>
-                <!-- Police Cap -->
                 <path d="M25 35 Q50 18 75 35 Z" fill="#1e3a8a"/>
                 <path d="M22 35 Q50 30 78 35 L80 39 Q50 35 20 39 Z" fill="#0f172a"/>
                 <circle cx="50" cy="27" r="4" fill="#facc15"/>
@@ -286,24 +277,18 @@
           <div>
             <div class="w-24 h-24 mx-auto mb-3">
               <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow">
-                <!-- Friendly Officer Yoav SVG -->
                 <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#f472b6" stroke-width="2"/>
-                <!-- Face -->
                 <circle cx="50" cy="55" r="28" fill="#fed7aa"/>
-                <!-- Cheerful Eyes -->
                 <circle cx="41" cy="50" r="3.5" fill="#1e293b"/>
                 <circle cx="59" cy="50" r="3.5" fill="#1e293b"/>
                 <circle cx="42.5" cy="48.5" r="1" fill="#fff"/>
                 <circle cx="60.5" cy="48.5" r="1" fill="#fff"/>
-                <!-- Dimples & Smile -->
                 <path d="M38 62 Q50 74 62 62" fill="none" stroke="#9a3412" stroke-width="3" stroke-linecap="round"/>
                 <circle cx="34" cy="61" r="2" fill="#ea580c"/>
                 <circle cx="66" cy="61" r="2" fill="#ea580c"/>
-                <!-- Police Cap -->
                 <path d="M25 38 Q50 20 75 38 Z" fill="#1e3a8a"/>
                 <path d="M22 38 Q50 34 78 38 L80 41 Q50 37 20 41 Z" fill="#0f172a"/>
                 <circle cx="50" cy="30" r="4" fill="#facc15"/>
-                <!-- Ice cream in hand -->
                 <g transform="translate(68, 48) scale(0.65)">
                   <polygon points="10,25 25,55 40,25" fill="#d97706"/>
                   <circle cx="25" cy="20" r="12" fill="#f472b6"/>
@@ -360,7 +345,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Rulebook ("אם... אז...") -->
+  <!-- MODAL: Rulebook -->
   <div id="rulebookModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="arcade-card bg-slate-900 border-4 border-cyan-400 max-w-lg w-full rounded-2xl p-6 text-right">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
@@ -424,7 +409,7 @@
   </div>
 
   <script>
-    /* Audio Synthesizer via Web Audio API (No external sound files required) */
+    /* Audio Synthesizer via Web Audio API */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playTone(freq, type = 'sine', duration = 0.15, gain = 0.1) {
@@ -440,15 +425,13 @@
         g.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {
-        // Audio error handling
-      }
+      } catch (e) {}
     }
 
     function soundReward() {
-      playTone(523, 'triangle', 0.1, 0.15); // C5
-      setTimeout(() => playTone(659, 'triangle', 0.1, 0.15), 80); // E5
-      setTimeout(() => playTone(784, 'triangle', 0.2, 0.15), 160); // G5
+      playTone(523, 'triangle', 0.1, 0.15);
+      setTimeout(() => playTone(659, 'triangle', 0.1, 0.15), 80);
+      setTimeout(() => playTone(784, 'triangle', 0.2, 0.15), 160);
     }
 
     function soundFine() {
@@ -468,13 +451,13 @@
 
     /* Game State */
     const state = {
-      selectedOfficer: 'TOUGH', // 'TOUGH' (Barak) or 'FRIENDLY' (Yoav)
-      toughGivesIceCreamNext: false, // Strict alternation for Tough officer: פעם כן פעם לא
+      selectedOfficer: 'TOUGH',
+      toughGivesIceCreamNext: false,
       lives: 3,
       finesCollected: 0,
       iceCreamCredits: 0,
       checkedCount: 0,
-      currentShift: 1, // 1 to 3
+      currentShift: 1,
       isPaused: false,
       waitingForManualResume: false,
       isSlowMotion: false,
@@ -483,7 +466,7 @@
       timeRemaining: 10,
       maxTurnTime: 10,
       currentSubject: null,
-      recentTypes: [] // Tracks vehicle types to prevent long streaks
+      recentTypes: []
     };
 
     /* Officer Profiles Data */
@@ -505,17 +488,14 @@
     const SUSPICIOUS_ROOF_ITEMS = ['תנין מתנפח 🐊', 'ספה ישנה 🛋️', 'סיר מרק רותח 🍲', 'עץ בננות 🍌', 'מכונת כביסה 🌀'];
 
     function generateSubject() {
-      // Determine vehicle type with cognitive interleaving (never 3 cars in a row)
       const carStreak = state.recentTypes.slice(-2).filter(t => t === 'CAR').length;
       let type = 'BIKE';
 
       if (state.currentShift === 1) {
-        // Shift 1: Only 2-wheelers (Bikes & Scooters)
         type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
       } else {
-        // Shift 2 and 3: Mix of cars and 2-wheelers
         if (carStreak >= 2) {
-          type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER'; // Force 2-wheeler
+          type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
         } else {
           const rand = Math.random();
           if (rand < 0.40) type = 'CAR';
@@ -529,20 +509,16 @@
 
       const isTwoWheeler = (type === 'BIKE' || type === 'SCOOTER');
 
-      // Violations logic
       let hasHelmet = true;
       let hasFlatTire = false;
       let roofItem = null;
 
       if (isTwoWheeler) {
-        // In 2-wheelers: 45% chance helmet is missing
         hasHelmet = Math.random() >= 0.45;
-        // In shift 2+: 20% flat tire
         if (state.currentShift >= 2) {
           hasFlatTire = Math.random() < 0.20;
         }
       } else {
-        // Cars: No helmet needed, but roof cargo or flat tire
         if (Math.random() < 0.50) {
           roofItem = SUSPICIOUS_ROOF_ITEMS[Math.floor(Math.random() * SUSPICIOUS_ROOF_ITEMS.length)];
         }
@@ -551,7 +527,6 @@
         }
       }
 
-      // Check if illegal
       const isIllegal = (!hasHelmet && isTwoWheeler) || hasFlatTire || (roofItem !== null);
       
       let violationReason = '';
@@ -588,19 +563,15 @@
             
             <!-- Rider Head -->
             <circle cx="120" cy="50" r="16" fill="#fcd34d" stroke="#000" stroke-width="3"/>
-            <!-- Friendly / Rider Face -->
             <circle cx="115" cy="48" r="2.5" fill="#000"/>
             <path d="M112 55 Q117 60 122 55" fill="none" stroke="#000" stroke-width="2"/>
 
-            <!-- HELMET OR NO HELMET (Pure visual, no text badges) -->
+            <!-- Helmet / Hair -->
             ${sub.hasHelmet ? `
-              <!-- Safe Protective Helmet with Strap -->
               <path d="M102 46 Q120 22 138 46 Z" fill="#ec4899" stroke="#000" stroke-width="3.5"/>
               <path d="M104 46 L136 46" stroke="#facc15" stroke-width="3"/>
-              <!-- Chinstrap -->
               <path d="M108 50 Q118 67 128 50" fill="none" stroke="#000" stroke-width="2.5"/>
             ` : `
-              <!-- Hair Only - No Helmet -->
               <path d="M104 46 Q120 32 136 46" fill="#78350f" stroke="#000" stroke-width="2.5"/>
             `}
 
@@ -613,11 +584,9 @@
               <line x1="90" y1="145" x2="115" y2="100" stroke="#06b6d4" stroke-width="6"/>
               <line x1="130" y1="145" x2="155" y2="92" stroke="#06b6d4" stroke-width="6"/>
               
-              <!-- Wheels (Deflated if flat tire) -->
-              <!-- Rear Wheel -->
+              <!-- Wheels -->
               <ellipse cx="65" cy="145" rx="22" ry="${tireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
               <circle cx="65" cy="145" r="7" fill="#cbd5e1"/>
-              <!-- Front Wheel (May be flat) -->
               <ellipse cx="175" cy="${sub.hasFlatTire ? '155' : '145'}" rx="${tireRx}" ry="${tireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
               <circle cx="175" cy="${sub.hasFlatTire ? '155' : '145'}" r="7" fill="#cbd5e1"/>
             ` : `
@@ -632,19 +601,21 @@
           </svg>
         `;
       } else {
-        // CAR (With possible suspicious roof cargo or flat tire)
+        // CAR
         const rearTireRy = sub.hasFlatTire ? '10' : '18';
+        // חילוץ בטוח של האימוג'י בלבד מהמחרוזת
+        const emoji = sub.roofItem ? sub.roofItem.trim().split(' ').pop() : '';
 
         html = `
           <svg viewBox="0 0 280 180" class="w-72 sm:w-80 h-52 sm:h-60 filter drop-shadow-md">
             <!-- Roof Item if Suspicious -->
             ${sub.roofItem ? `
-              <g transform="translate(100, 15)">
+              <g transform="translate(100, 5)">
                 <!-- Cargo straps -->
-                <line x1="15" y1="35" x2="15" y2="55" stroke="#f59e0b" stroke-width="3"/>
-                <line x1="65" y1="35" x2="65" y2="55" stroke="#f59e0b" stroke-width="3"/>
-                <!-- Item Emoji / Visual -->
-                <text x="40" y="32" font-size="34" text-anchor="middle">${sub.roofItem.split(' ')[1] || '📦'}</text>
+                <line x1="20" y1="20" x2="20" y2="45" stroke="#f59e0b" stroke-width="3"/>
+                <line x1="60" y1="20" x2="60" y2="45" stroke="#f59e0b" stroke-width="3"/>
+                <!-- Item Emoji -->
+                <text x="40" y="32" font-size="36" text-anchor="middle" dominant-baseline="central">${emoji}</text>
               </g>
             ` : ''}
 
@@ -661,10 +632,8 @@
             <rect x="42" y="84" width="8" height="12" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
 
             <!-- Wheels -->
-            <!-- Front Wheel -->
             <ellipse cx="195" cy="118" rx="18" ry="18" fill="#1e293b" stroke="#000" stroke-width="4"/>
             <circle cx="195" cy="118" r="6" fill="#cbd5e1"/>
-            <!-- Rear Wheel (May be flat) -->
             <ellipse cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" rx="18" ry="${rearTireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
             <circle cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" r="6" fill="#cbd5e1"/>
           </svg>
@@ -710,33 +679,26 @@
     }
 
     function updateHUD() {
-      // Lives display
       let heartsHtml = '';
       for (let i = 0; i < 3; i++) {
         heartsHtml += i < state.lives ? '<span>❤️</span>' : '<span class="opacity-30">🖤</span>';
       }
       document.getElementById('livesDisplay').innerHTML = heartsHtml;
 
-      // Fines & Ice Cream
       document.getElementById('fineCoinsLabel').textContent = `₪${state.finesCollected}`;
       document.getElementById('iceCreamLabel').textContent = state.iceCreamCredits;
 
-      // Officer Fine on button
       const curOfficer = OFFICERS[state.selectedOfficer];
       document.getElementById('fineButtonAmount').textContent = `₪${curOfficer.fineAmount}`;
 
-      // Officer Mini Badge
       document.getElementById('officerIconMini').textContent = curOfficer.icon;
       document.getElementById('officerNameMini').textContent = curOfficer.name;
 
-      // Shift tag
       const shiftNames = ['שלב 1: משמרת בוקר', 'שלב 2: משמרת צהריים', 'שלב 3: משמרת לילה עמוסה'];
       document.getElementById('shiftLevelLabel').textContent = shiftNames[state.currentShift - 1] || 'משמרת מיוחדת';
 
-      // Counter
       document.getElementById('subjectCounter').textContent = `נבדק: ${state.checkedCount + 1} / 15`;
 
-      // Slow time button enable/disable
       const slowBtn = document.getElementById('slowTimeBtn');
       if (slowBtn) {
         slowBtn.disabled = (state.iceCreamCredits < 2 || state.isSlowMotion);
@@ -767,7 +729,6 @@
 
       if (state.timeRemaining <= 0) {
         clearInterval(state.turnTimer);
-        // Time expired = Strike!
         handleTimeOutStrike();
       }
     }
@@ -790,25 +751,19 @@
       const isIllegal = sub.isIllegal;
       const officer = OFFICERS[state.selectedOfficer];
 
-      // Was player correct?
       const isCorrect = (choice === 'FINE' && isIllegal) || (choice === 'PASS' && !isIllegal);
 
       if (isCorrect) {
-        // SUCCESS
         state.checkedCount++;
 
         if (choice === 'FINE') {
-          // Fine registered
           soundFine();
           state.finesCollected += officer.fineAmount;
         } else {
-          // Passenger cleared safely
           soundReward();
           if (state.selectedOfficer === 'FRIENDLY') {
-            // Friendly officer always gives ice cream
             state.iceCreamCredits += 1;
           } else {
-            // Tough officer gives ice cream alternately (פעם כן פעם לא)
             if (state.toughGivesIceCreamNext) {
               state.iceCreamCredits += 1;
             }
@@ -816,7 +771,6 @@
           }
         }
 
-        // Shift progression
         if (state.checkedCount % 5 === 0 && state.currentShift < 3) {
           state.currentShift++;
         }
@@ -825,7 +779,6 @@
         setTimeout(startTurn, 300);
 
       } else {
-        // ERROR -> FULL STOP (Manual Resume required)
         soundStrike();
         state.lives--;
         updateHUD();
