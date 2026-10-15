@@ -31,7 +31,6 @@
       font-family: 'Press Start 2P', monospace;
     }
 
-    /* Chunky Arcade Shadow and Borders */
     .arcade-card {
       border: 4px solid #000;
       box-shadow: 6px 6px 0px #000;
@@ -51,7 +50,6 @@
       box-shadow: 1px 1px 0px #000;
     }
 
-    /* CRT Monitor Scanlines Effect */
     .scanlines {
       background: linear-gradient(
         rgba(18, 16, 16, 0) 50%, 
@@ -60,13 +58,12 @@
         90deg,
         rgba(255, 0, 0, 0.04),
         rgba(0, 255, 0, 0.02),
-        rgba(0, 0, 255, 0.04)
+        rgba(0, 255, 0, 0.04)
       );
       background-size: 100% 4px, 6px 100%;
       pointer-events: none;
     }
 
-    /* Officer Selection Hover */
     .officer-select-card {
       border: 4px solid #1e293b;
       cursor: pointer;
@@ -80,6 +77,15 @@
       border-color: #facc15;
       background-color: rgba(30, 41, 59, 0.9);
       box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+    }
+
+    @keyframes unropedJiggle {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-4px) rotate(-3deg); }
+      75% { transform: translateY(-2px) rotate(3deg); }
+    }
+    .unroped-hazard {
+      animation: unropedJiggle 0.6s infinite ease-in-out;
     }
   </style>
 </head>
@@ -155,7 +161,7 @@
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           עמדת ביקורת ובטיחות • בדיקה פעילה
         </span>
-        <span id="subjectCounter" class="text-slate-400 font-mono text-[11px]">נבדק: 1 / 15</span>
+        <span id="subjectCounter" class="text-slate-400 font-mono text-[11px]">נבדק: 1</span>
       </div>
 
       <!-- Time Bar -->
@@ -345,9 +351,9 @@
     </div>
   </div>
 
-  <!-- MODAL: Rulebook -->
+  <!-- MODAL: Rulebook ("אם... אז...") -->
   <div id="rulebookModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="arcade-card bg-slate-900 border-4 border-cyan-400 max-w-lg w-full rounded-2xl p-6 text-right">
+    <div class="arcade-card bg-slate-900 border-4 border-cyan-400 max-w-lg w-full rounded-2xl p-6 text-right max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
         <h3 class="pixel-font text-base text-cyan-300 flex items-center gap-2">
           <span>📖</span> ספר חוקי התנועה והאכיפה
@@ -357,20 +363,25 @@
 
       <div class="space-y-3 text-xs leading-relaxed text-slate-200 mb-6">
         <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-yellow-400">
-          <strong class="text-yellow-300 block mb-1">חוק 1: חבישת קסדה בדו-גלגלי</strong>
-          <strong>אם</strong> רוכב אופניים או קורקינט אינו חובש קסדה תקינה, <strong>אז</strong> חובה לתת קנס מידי להגנה על חייו.
+          <strong class="text-yellow-300 block mb-1">חוק 1: חבישת קסדה בדו-גלגלי (משמרת 1+)</strong>
+          <strong>אם</strong> רוכב אופניים או קורקינט אינו חובש קסדה תקינה, <strong>אז</strong> חובה לתת קנס להגנה על חייו[cite: 1]!
         </div>
         <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-rose-500">
-          <strong class="text-rose-400 block mb-1">חוק 2: גלגלים ותקינות כלי הרכב</strong>
-          <strong>אם</strong> יש תקר בגלגל (פנצ'ר מעוך) בכל סוג רכב, <strong>אז</strong> הרכב מסוכן לנסיעה וחובה לקנוס אותו.
+          <strong class="text-rose-400 block mb-1">חוק 2: גלגלים ותקינות כלי הרכב (משמרת 2+)</strong>
+          <strong>אם</strong> יש תקר בגלגל (פנצ'ר מעוך) בכל סוג רכב, <strong>אז</strong> הרכב מסוכן לנסיעה וחובה לקנוס אותו[cite: 1].
         </div>
         <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-purple-400">
-          <strong class="text-purple-300 block mb-1">חוק 3: מטענים חריגים על גג מכונית</strong>
-          <strong>אם</strong> על גג המכונית קשור חפץ חשוד או לא הגיוני, <strong>אז</strong> הנהג ביצע עבירת מטען ויש לקנוס אותו.
+          <strong class="text-purple-300 block mb-1">חוק 3: חפצים על גג מכונית פרטית (משמרת 3+)</strong>
+          <strong>אם</strong> על גג רכב פרטי קשור חפץ אבסורדי וחריג (חיות, רהיטים, מבנים), <strong>אז</strong> יש לקנוס אותו גם אם הוא קשור בחבלים!
+        </div>
+        <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-orange-400">
+          <strong class="text-orange-300 block mb-1">חוק 4: קשירה בחבלים וטנדרים (משמרת 4)</strong>
+          <strong>אם</strong> המטען אינו קשור בחבלים (בכל רכב או טנדר), <strong>אז</strong> הוא יעוף בנסיעה ודינו קנס מידי!<br>
+          <strong>בטנדר עם ארגז פתוח:</strong> מותר להוביל כל חפץ, <strong>בתנאי</strong> שהוא קשור היטב בחבלים.
         </div>
         <div class="p-3 bg-slate-950 rounded-lg border-r-4 border-emerald-400">
-          <strong class="text-emerald-300 block mb-1">חוק 4: אזרח זהיר ושומר חוק</strong>
-          <strong>אם</strong> הכל תקין לחלוטין (יש קסדה, אין תקר ואין חפץ על הגג), <strong>אז</strong> משחררים בבטחה ומחלקים גלידה!
+          <strong class="text-emerald-300 block mb-1">חוק 5: אזרח זהיר ושומר חוק</strong>
+          <strong>אם</strong> הכל תקין ומאובטח כחוק, <strong>אז</strong> משחררים לדרך ומחלקים גלידה[cite: 1]!
         </div>
       </div>
 
@@ -457,7 +468,7 @@
       finesCollected: 0,
       iceCreamCredits: 0,
       checkedCount: 0,
-      currentShift: 1,
+      currentShift: 1, // 1 to 4+
       isPaused: false,
       waitingForManualResume: false,
       isSlowMotion: false,
@@ -485,21 +496,56 @@
       }
     };
 
-    const SUSPICIOUS_ROOF_ITEMS = ['תנין מתנפח 🐊', 'ספה ישנה 🛋️', 'סיר מרק רותח 🍲', 'עץ בננות 🍌', 'מכונת כביסה 🌀'];
+    // Cargo Items by Category
+    const LEGIT_ROOF_ITEMS = [
+      { text: 'מזוודת טיולים', emoji: '🧳' },
+      { text: 'גלשן גלים', emoji: '🏄' },
+      { text: 'אופניים', emoji: '🚲' },
+      { text: 'ארגז קרטון', emoji: '📦' },
+      { text: 'מזרן שינה', emoji: '🛏️' }
+    ];
+
+    const ABSURD_ROOF_ITEMS = [
+      { text: 'פיל אפריקאי', emoji: '🐘' },
+      { text: 'תנין ענק', emoji: '🐊' },
+      { text: 'בית מגורים', emoji: '🏠' },
+      { text: 'עץ בננות', emoji: '🍌' },
+      { text: 'ספה ישנה', emoji: '🛋️' },
+      { text: 'מקרר ביתי', emoji: '🧊' }
+    ];
 
     function generateSubject() {
-      const carStreak = state.recentTypes.slice(-2).filter(t => t === 'CAR').length;
       let type = 'BIKE';
 
       if (state.currentShift === 1) {
+        // Shift 1: Only 2-wheelers
         type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
-      } else {
+      } else if (state.currentShift === 2) {
+        // Shift 2: 2-wheelers and regular cars
+        const carStreak = state.recentTypes.slice(-2).filter(t => t === 'CAR').length;
         if (carStreak >= 2) {
           type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
         } else {
-          const rand = Math.random();
-          if (rand < 0.40) type = 'CAR';
-          else if (rand < 0.70) type = 'BIKE';
+          type = Math.random() < 0.45 ? 'CAR' : (Math.random() < 0.5 ? 'BIKE' : 'SCOOTER');
+        }
+      } else if (state.currentShift === 3) {
+        // Shift 3: 2-wheelers and cars with simple roof items
+        const carStreak = state.recentTypes.slice(-2).filter(t => t === 'CAR').length;
+        if (carStreak >= 2) {
+          type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
+        } else {
+          type = Math.random() < 0.55 ? 'CAR' : (Math.random() < 0.5 ? 'BIKE' : 'SCOOTER');
+        }
+      } else {
+        // Shift 4+: Include PICKUP trucks alongside cars and two-wheelers
+        const fourWheelerStreak = state.recentTypes.slice(-2).filter(t => t === 'CAR' || t === 'PICKUP').length;
+        if (fourWheelerStreak >= 2) {
+          type = Math.random() < 0.5 ? 'BIKE' : 'SCOOTER';
+        } else {
+          const r = Math.random();
+          if (r < 0.35) type = 'PICKUP';
+          else if (r < 0.65) type = 'CAR';
+          else if (r < 0.85) type = 'BIKE';
           else type = 'SCOOTER';
         }
       }
@@ -508,38 +554,83 @@
       if (state.recentTypes.length > 6) state.recentTypes.shift();
 
       const isTwoWheeler = (type === 'BIKE' || type === 'SCOOTER');
+      const isCar = (type === 'CAR');
+      const isPickup = (type === 'PICKUP');
 
       let hasHelmet = true;
       let hasFlatTire = false;
-      let roofItem = null;
+      let cargo = null; // { text, emoji, isAbsurd, isRoped }
 
       if (isTwoWheeler) {
+        // 2-wheelers helmet check
         hasHelmet = Math.random() >= 0.45;
         if (state.currentShift >= 2) {
-          hasFlatTire = Math.random() < 0.20;
+          hasFlatTire = Math.random() < 0.25;
         }
-      } else {
-        if (Math.random() < 0.50) {
-          roofItem = SUSPICIOUS_ROOF_ITEMS[Math.floor(Math.random() * SUSPICIOUS_ROOF_ITEMS.length)];
+      } else if (isCar) {
+        // Regular Car
+        if (state.currentShift >= 2 && Math.random() < 0.25) {
+          hasFlatTire = true;
         }
+
+        if (state.currentShift === 3) {
+          // Shift 3: Simple cargo check (only absurd items appear as illegal, all roped)
+          if (Math.random() < 0.55) {
+            const item = ABSURD_ROOF_ITEMS[Math.floor(Math.random() * ABSURD_ROOF_ITEMS.length)];
+            cargo = { text: item.text, emoji: item.emoji, isAbsurd: true, isRoped: true };
+          }
+        } else if (state.currentShift >= 4) {
+          // Shift 4: Legit vs Absurd AND Roped vs Unroped!
+          if (Math.random() < 0.70) {
+            const isAbsurd = Math.random() < 0.50;
+            const pool = isAbsurd ? ABSURD_ROOF_ITEMS : LEGIT_ROOF_ITEMS;
+            const chosen = pool[Math.floor(Math.random() * pool.length)];
+            const isRoped = Math.random() >= 0.35; // 35% chance to NOT be roped
+            cargo = { text: chosen.text, emoji: chosen.emoji, isAbsurd, isRoped };
+          }
+        }
+      } else if (isPickup) {
+        // Pickup Truck (Shift 4+)
         if (Math.random() < 0.25) {
           hasFlatTire = true;
         }
+        // In pickup: Any cargo is allowed, BUT must be roped!
+        if (Math.random() < 0.75) {
+          const allPool = [...LEGIT_ROOF_ITEMS, ...ABSURD_ROOF_ITEMS];
+          const chosen = allPool[Math.floor(Math.random() * allPool.length)];
+          const isRoped = Math.random() >= 0.40; // 40% unroped
+          cargo = { text: chosen.text, emoji: chosen.emoji, isAbsurd: false, isRoped };
+        }
       }
 
-      const isIllegal = (!hasHelmet && isTwoWheeler) || hasFlatTire || (roofItem !== null);
-      
+      // Legal Validation Logic
+      let isIllegal = false;
       let violationReason = '';
-      if (!hasHelmet && isTwoWheeler) violationReason = 'הרוכב לא חבש קסדה תקינה!';
-      else if (hasFlatTire) violationReason = 'לכלי הרכב יש צמיג מפונצ\'ר ומעוך המסכן את הנסיעה!';
-      else if (roofItem) violationReason = `על גג הרכב קשור מטען מסוכן ולא מורשה: ${roofItem}!`;
+
+      if (isTwoWheeler && !hasHelmet) {
+        isIllegal = true;
+        violationReason = 'הרוכב לא חבש קסדה תקינה להגנה על ראשו!';
+      } else if (hasFlatTire) {
+        isIllegal = true;
+        violationReason = 'לכלי הרכב יש צמיג מפונצ\'ר ומעוך המסכן את הנסיעה!';
+      } else if (cargo) {
+        if (!cargo.isRoped) {
+          isIllegal = true;
+          violationReason = `המטען (${cargo.text} ${cargo.emoji}) אינו קשור בחבלים ועלול לעוף מהרכב!`;
+        } else if (isCar && cargo.isAbsurd) {
+          isIllegal = true;
+          violationReason = `אסור בתכלית להוביל ${cargo.text} (${cargo.emoji}) על גג מכונית פרטית, גם אם הוא קשור בחבלים!`;
+        }
+      }
 
       return {
         type,
         isTwoWheeler,
+        isCar,
+        isPickup,
         hasHelmet,
         hasFlatTire,
-        roofItem,
+        cargo,
         isIllegal,
         violationReason
       };
@@ -552,21 +643,17 @@
 
       let html = '';
 
-      if (sub.type === 'BIKE' || sub.type === 'SCOOTER') {
+      if (sub.isTwoWheeler) {
         const tireRx = sub.hasFlatTire ? '12' : '22';
         const tireRy = sub.hasFlatTire ? '22' : '22';
 
         html = `
           <svg viewBox="0 0 240 200" class="w-64 sm:w-72 h-52 sm:h-60 filter drop-shadow-md">
-            <!-- Rider Body -->
             <ellipse cx="120" cy="95" rx="14" ry="24" fill="#3b82f6" stroke="#000" stroke-width="3"/>
-            
-            <!-- Rider Head -->
             <circle cx="120" cy="50" r="16" fill="#fcd34d" stroke="#000" stroke-width="3"/>
             <circle cx="115" cy="48" r="2.5" fill="#000"/>
             <path d="M112 55 Q117 60 122 55" fill="none" stroke="#000" stroke-width="2"/>
 
-            <!-- Helmet / Hair -->
             ${sub.hasHelmet ? `
               <path d="M102 46 Q120 22 138 46 Z" fill="#ec4899" stroke="#000" stroke-width="3.5"/>
               <path d="M104 46 L136 46" stroke="#facc15" stroke-width="3"/>
@@ -575,68 +662,114 @@
               <path d="M104 46 Q120 32 136 46" fill="#78350f" stroke="#000" stroke-width="2.5"/>
             `}
 
-            <!-- Arms & Handlebars -->
             <path d="M118 85 L145 92" stroke="#000" stroke-width="4" stroke-linecap="round"/>
 
             ${sub.type === 'BIKE' ? `
-              <!-- BICYCLE FRAME -->
               <polygon points="90,145 130,145 155,100 115,100" fill="none" stroke="#06b6d4" stroke-width="6" stroke-linejoin="round"/>
               <line x1="90" y1="145" x2="115" y2="100" stroke="#06b6d4" stroke-width="6"/>
               <line x1="130" y1="145" x2="155" y2="92" stroke="#06b6d4" stroke-width="6"/>
-              
-              <!-- Wheels -->
               <ellipse cx="65" cy="145" rx="22" ry="${tireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
               <circle cx="65" cy="145" r="7" fill="#cbd5e1"/>
               <ellipse cx="175" cy="${sub.hasFlatTire ? '155' : '145'}" rx="${tireRx}" ry="${tireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
               <circle cx="175" cy="${sub.hasFlatTire ? '155' : '145'}" r="7" fill="#cbd5e1"/>
             ` : `
-              <!-- ELECTRIC SCOOTER FRAME -->
               <line x1="85" y1="150" x2="160" y2="150" stroke="#10b981" stroke-width="8" stroke-linecap="round"/>
               <line x1="155" y1="150" x2="150" y2="92" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
-              
-              <!-- Wheels -->
               <ellipse cx="75" cy="152" rx="14" ry="14" fill="#1e293b" stroke="#000" stroke-width="3.5"/>
               <ellipse cx="165" cy="${sub.hasFlatTire ? '158' : '152'}" rx="${sub.hasFlatTire ? '8' : '14'}" ry="14" fill="#1e293b" stroke="#000" stroke-width="3.5"/>
             `}
           </svg>
         `;
-      } else {
-        // CAR
+      } else if (sub.isCar) {
+        // REGULAR CAR
         const rearTireRy = sub.hasFlatTire ? '10' : '18';
-        // חילוץ בטוח של האימוג'י בלבד מהמחרוזת
-        const emoji = sub.roofItem ? sub.roofItem.trim().split(' ').pop() : '';
+        const cargo = sub.cargo;
 
         html = `
-          <svg viewBox="0 0 280 180" class="w-72 sm:w-80 h-52 sm:h-60 filter drop-shadow-md">
-            <!-- Roof Item if Suspicious -->
-            ${sub.roofItem ? `
-              <g transform="translate(100, 5)">
-                <!-- Cargo straps -->
-                <line x1="20" y1="20" x2="20" y2="45" stroke="#f59e0b" stroke-width="3"/>
-                <line x1="60" y1="20" x2="60" y2="45" stroke="#f59e0b" stroke-width="3"/>
-                <!-- Item Emoji -->
-                <text x="40" y="32" font-size="36" text-anchor="middle" dominant-baseline="central">${emoji}</text>
-              </g>
+          <div class="relative flex flex-col items-center">
+            
+            ${cargo ? `
+              <div class="absolute -top-7 z-30 flex flex-col items-center ${cargo.isRoped ? '' : 'unroped-hazard'}">
+                <span class="text-4xl filter drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] select-none">${cargo.emoji}</span>${cargo.isRoped ? `
+                  <div class="flex gap-4 -mt-2">
+                    <div class="w-1.5 h-4 bg-amber-400 border border-black"></div>
+                    <div class="w-1.5 h-4 bg-amber-400 border border-black"></div>
+                  </div>
+                ` : `
+                  <div class="text-[10px] bg-rose-600 border border-black px-1 text-white font-bold rounded -mt-1">
+                    ⚠️ לא קשור!
+                  </div>
+                `}
+              </div>
             ` : ''}
 
-            <!-- Car Cabin -->
-            <path d="M75 75 L110 45 L180 45 L215 75 Z" fill="#38bdf8" stroke="#000" stroke-width="4"/>
-            <!-- Windows -->
-            <polygon points="115,50 142,50 142,72 85,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
-            <polygon points="148,50 175,50 205,72 148,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
+            <svg viewBox="0 0 280 180" class="w-72 sm:w-80 h-52 sm:h-60 filter drop-shadow-md overflow-visible">
+              <path d="M75 75 L110 45 L180 45 L215 75 Z" fill="#38bdf8" stroke="#000" stroke-width="4"/>
+              <polygon points="115,50 142,50 142,72 85,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
+              <polygon points="148,50 175,50 205,72 148,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
 
-            <!-- Car Chassis -->
-            <rect x="40" y="75" width="205" height="42" rx="12" fill="#f43f5e" stroke="#000" stroke-width="4"/>
-            <!-- Headlights -->
-            <circle cx="238" cy="88" r="6" fill="#fef08a" stroke="#000" stroke-width="2"/>
-            <rect x="42" y="84" width="8" height="12" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
+              <rect x="40" y="75" width="205" height="42" rx="12" fill="#f43f5e" stroke="#000" stroke-width="4"/>
+              <circle cx="238" cy="88" r="6" fill="#fef08a" stroke="#000" stroke-width="2"/>
+              <rect x="42" y="84" width="8" height="12" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
 
-            <!-- Wheels -->
-            <ellipse cx="195" cy="118" rx="18" ry="18" fill="#1e293b" stroke="#000" stroke-width="4"/>
-            <circle cx="195" cy="118" r="6" fill="#cbd5e1"/>
-            <ellipse cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" rx="18" ry="${rearTireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
-            <circle cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" r="6" fill="#cbd5e1"/>
-          </svg>
+              <ellipse cx="195" cy="118" rx="18" ry="18" fill="#1e293b" stroke="#000" stroke-width="4"/>
+              <circle cx="195" cy="118" r="6" fill="#cbd5e1"/>
+              <ellipse cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" rx="18" ry="${rearTireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
+              <circle cx="85" cy="${sub.hasFlatTire ? '124' : '118'}" r="6" fill="#cbd5e1"/>
+            </svg>
+          </div>
+        `;
+      } else if (sub.isPickup) {
+        // PICKUP TRUCK WITH OPEN BED
+        const rearTireRy = sub.hasFlatTire ? '10' : '18';
+        const cargo = sub.cargo;
+
+        html = `
+          <div class="relative flex flex-col items-center">
+            
+            ${cargo ? `
+              <!-- Cargo sits in the rear open bed (shifted to the right in RTL / rear of truck) -->
+              <div class="absolute top-2 right-12 sm:right-16 z-30 flex flex-col items-center ${cargo.isRoped ? '' : 'unroped-hazard'}">
+                <span class="text-4xl filter drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] select-none">${cargo.emoji}</span>${cargo.isRoped ? `
+                  <div class="flex gap-4 -mt-2">
+                    <div class="w-1.5 h-5 bg-amber-400 border border-black"></div>
+                    <div class="w-1.5 h-5 bg-amber-400 border border-black"></div>
+                  </div>
+                ` : `
+                  <div class="text-[10px] bg-rose-600 border border-black px-1 text-white font-bold rounded -mt-1">
+                    ⚠️ לא קשור!
+                  </div>
+                `}
+              </div>
+            ` : ''}
+
+            <svg viewBox="0 0 290 180" class="w-72 sm:w-80 h-52 sm:h-60 filter drop-shadow-md overflow-visible">
+              <!-- Front Cabin -->
+              <path d="M125 75 L155 42 L205 42 L225 75 Z" fill="#eab308" stroke="#000" stroke-width="4"/>
+              <!-- Cabin Window -->
+              <polygon points="158,48 200,48 215,72 138,72" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
+
+              <!-- Open Cargo Bed in the back -->
+              <rect x="35" y="65" width="95" height="15" fill="#ca8a04" stroke="#000" stroke-width="3"/>
+              <!-- Bed Rail Bars -->
+              <line x1="45" y1="52" x2="125" y2="52" stroke="#475569" stroke-width="3"/>
+              <line x1="50" y1="52" x2="50" y2="65" stroke="#475569" stroke-width="3"/>
+              <line x1="85" y1="52" x2="85" y2="65" stroke="#475569" stroke-width="3"/>
+              <line x1="120" y1="52" x2="120" y2="65" stroke="#475569" stroke-width="3"/>
+
+              <!-- Main Truck Chassis -->
+              <rect x="35" y="75" width="220" height="42" rx="10" fill="#f59e0b" stroke="#000" stroke-width="4"/>
+              <!-- Headlights -->
+              <circle cx="250" cy="88" r="6" fill="#fef08a" stroke="#000" stroke-width="2"/>
+              <rect x="37" y="84" width="8" height="12" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
+
+              <!-- Wheels -->
+              <ellipse cx="205" cy="118" rx="18" ry="18" fill="#1e293b" stroke="#000" stroke-width="4"/>
+              <circle cx="205" cy="118" r="6" fill="#cbd5e1"/>
+              <ellipse cx="80" cy="${sub.hasFlatTire ? '124' : '118'}" rx="18" ry="${rearTireRy}" fill="#1e293b" stroke="#000" stroke-width="4"/>
+              <circle cx="80" cy="${sub.hasFlatTire ? '124' : '118'}" r="6" fill="#cbd5e1"/>
+            </svg>
+          </div>
         `;
       }
 
@@ -694,10 +827,15 @@
       document.getElementById('officerIconMini').textContent = curOfficer.icon;
       document.getElementById('officerNameMini').textContent = curOfficer.name;
 
-      const shiftNames = ['שלב 1: משמרת בוקר', 'שלב 2: משמרת צהריים', 'שלב 3: משמרת לילה עמוסה'];
-      document.getElementById('shiftLevelLabel').textContent = shiftNames[state.currentShift - 1] || 'משמרת מיוחדת';
+      const shiftNames = [
+        'שלב 1: משמרת בוקר', 
+        'שלב 2: משמרת צהריים (פנצ\'רים)', 
+        'שלב 3: משמרת ערב (מטענים)', 
+        'שלב 4: משמרת לילה מיוחדת (טנדרים וחבלים)'
+      ];
+      document.getElementById('shiftLevelLabel').textContent = shiftNames[state.currentShift - 1] || `משמרת מיוחדת ${state.currentShift}`;
 
-      document.getElementById('subjectCounter').textContent = `נבדק: ${state.checkedCount + 1} / 15`;
+      document.getElementById('subjectCounter').textContent = `נבדק: ${state.checkedCount + 1}`;
 
       const slowBtn = document.getElementById('slowTimeBtn');
       if (slowBtn) {
@@ -712,7 +850,7 @@
       state.currentSubject = generateSubject();
       renderSubject();
 
-      state.maxTurnTime = Math.max(6, 11 - state.currentShift);
+      state.maxTurnTime = Math.max(6, 12 - state.currentShift);
       state.timeRemaining = state.maxTurnTime;
 
       updateTimeBar();
@@ -771,7 +909,8 @@
           }
         }
 
-        if (state.checkedCount % 5 === 0 && state.currentShift < 3) {
+        // Advance shift every 5 inspected vehicles up to shift 4
+        if (state.checkedCount % 5 === 0 && state.currentShift < 4) {
           state.currentShift++;
         }
 
@@ -785,7 +924,13 @@
 
         let explanation = '';
         if (choice === 'FINE' && !isIllegal) {
-          explanation = 'האזרח נסע כחוק לפי כל הכללים! הייתה לו קסדה, גלגלים תקינים וללא מטען חריג. הקנס לא היה מוצדק.';
+          if (sub.isPickup && sub.cargo && sub.cargo.isRoped) {
+            explanation = 'הטנדר נסע כחוק! בטנדר מותר להוביל כל חפץ בתנאי שהוא קשור היטב בחבלים.';
+          } else if (sub.isCar && sub.cargo && sub.cargo.isRoped && !sub.cargo.isAbsurd) {
+            explanation = 'המכונית נסעה כחוק! המטען לגיטימי וקשור היטב בחבלים.';
+          } else {
+            explanation = 'האזרח נסע כחוק לפי כל הכללים! הייתה לו קסדה, גלגלים תקינים וללא עבירות. הקנס לא היה מוצדק.';
+          }
         } else {
           explanation = sub.violationReason || 'הרכב ביצע עבירת בטיחות ולא היה תקין!';
         }
